@@ -75,7 +75,13 @@ jobs:
               names.append(p.get("name"))
           # weftspun's rule: path recomposes to name. Drop the leading digit
           # from the side and join it to the child with a hyphen.
+          #
+          # Only for projects on our own remote. An upstream repository is
+          # named by whoever maintains it, and renaming someone else's model
+          # to satisfy our convention would break the URL it is fetched from.
           for p in root.findall("project"):
+              if p.get("remote") != "fire":
+                  continue
               side, _, child = p.get("path").partition("/")
               expect = "%s-%s" % (side.split("-", 1)[1], child)
               if p.get("name") not in (expect, child) and not p.get("name").startswith(

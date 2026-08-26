@@ -2,6 +2,7 @@
 <manifest>
 
   <remote name="fire" fetch="https://github.com/fire" />
+  <remote name="huggingface" fetch="https://huggingface.co/ifire" />
 
   <default sync-j="16" />
 
@@ -16,7 +17,9 @@
   <project name="interactor-normalize" path="3-interactor/normalize" remote="fire" revision="main" />
   <project name="interactor-forecast" path="3-interactor/forecast" remote="fire" revision="main" />
   <project name="interactor-forecast-timesfm" path="3-interactor/forecast-timesfm" remote="fire" revision="main" />
-  <project name="interactor-litert" path="3-interactor/litert" remote="fire" revision="main" />
+  <project name="interactor-ggml" path="3-interactor/ggml" remote="fire" revision="main" />
+
+  <project name="Qwen3-VL-Embedding-2B-GGUF" path="3-interactor/qwen3-vl-embedding-2b-gguf" remote="huggingface" revision="main" />
 
   <project name="entities-social-graph" path="4-entities/social-graph" remote="fire" revision="main" />
 
