@@ -16,7 +16,7 @@
   <project name="interactor-normalize" path="3-interactor/normalize" remote="fire" revision="main" />
   <project name="interactor-forecast" path="3-interactor/forecast" remote="fire" revision="main" />
   <project name="interactor-forecast-timesfm" path="3-interactor/forecast-timesfm" remote="fire" revision="main" />
-  <project name="interactor-forecast-litert" path="3-interactor/forecast-litert" remote="fire" revision="main" />
+  <project name="interactor-litert" path="3-interactor/litert" remote="fire" revision="main" />
 
   <project name="entities-social-graph" path="4-entities/social-graph" remote="fire" revision="main" />
 
