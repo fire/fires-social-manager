@@ -1,18 +1,47 @@
 # The data never leaves this machine. Gate G0 enforces it; this is the first line.
+#
+# What this project family legitimately produces, per RFD 1141: ZStandard
+# parquet for bulk, .usda for ETNF registers, safetensors for models, and the
+# working SQLite store. None of it belongs in git.
 *.sqlite3
 *.sqlite3-wal
 *.sqlite3-shm
+*.sqlite
 *.db
-*.csv
-*.jsonl
+*.db3
 *.parquet
+*.zst
+*.usda
+*.usdc
+*.safetensors
+snapshots/
+priv/data/
+logbook/attachments/
+
+# Formats this project does not use at all. RFD 1141 refuses zip and gzip and
+# selects ZStandard parquet for bulk; row-oriented text dumps were never on
+# the list. Ignored so they cannot be committed by accident, and named by G0
+# as "unapproved-data-format" rather than "data file", because the fix is to
+# stop producing them rather than to untrack them.
+*.jsonl
+*.ndjson
+*.csv
+*.tsv
+*.zip
+*.gz
+*.tgz
+*.7z
+*.pickle
+*.pkl
+*.npy
+*.npz
+*.h5
+*.hdf5
+
 # ...except the gate control inputs. Every identifier under gates/fixtures/ is
 # synthetic, and a negative control that is not committed passes on the
 # author's disk and fails on every fresh clone -- which is how CI found this.
 !gates/fixtures/**
-snapshots/
-priv/data/
-logbook/attachments/
 
 # Elixir
 _build/

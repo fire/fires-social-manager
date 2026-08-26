@@ -47,14 +47,30 @@ CHECKS = [
     ("absolute-home-path", re.compile(r"(?:/Users/|/home/|C:\\\\Users\\\\)[A-Za-z0-9._-]+/")),
 ]
 
-DATA_SUFFIXES = (
+# Two different defects, so two different codes and two different remedies.
+#
+# APPROVED is what this project family legitimately produces -- RFD 1141 makes
+# bulk storage ZStandard parquet, ETNF registers .usda, and models
+# safetensors. A file in one of these formats is not a mistake in itself; it
+# is a mistake in git, and the fix is to remove it from version control.
+APPROVED_DATA_SUFFIXES = (
+    ".parquet", ".zst", ".usda", ".usdc", ".safetensors",
     ".sqlite3", ".sqlite", ".db", ".db3", ".sqlite3-wal", ".sqlite3-shm",
-    ".csv", ".jsonl", ".ndjson", ".parquet", ".7z",
+)
+
+# UNAPPROVED is a format this project does not use at all. RFD 1141 refuses
+# zip and gzip and selects ZStandard parquet for bulk; row-oriented text dumps
+# were never on the list. The fix is not "untrack it", it is "do not produce
+# it" -- so saying "data file" for both would name the wrong problem.
+UNAPPROVED_DATA_SUFFIXES = (
+    ".jsonl", ".ndjson", ".csv", ".tsv",
+    ".zip", ".gz", ".tgz", ".7z", ".rar",
+    ".pickle", ".pkl", ".npy", ".npz", ".h5", ".hdf5",
 )
 
 # Binary and vendored things a text scan should not walk into.
 SKIP_SUFFIXES = (".woff2", ".woff", ".ttf", ".otf", ".png", ".jpg", ".jpeg",
-                 ".gif", ".webp", ".ico", ".pdf", ".zip", ".gz", ".tar")
+                 ".gif", ".webp", ".ico", ".pdf", ".tar")
 
 ALLOWLIST_NAME = "gates/allowed_ids.txt"
 
@@ -94,8 +110,11 @@ def scan_structural(root, paths, allowed):
     for rel in paths:
         if rel == ALLOWLIST_NAME or rel.startswith("gates/fixtures/"):
             continue
-        if rel.endswith(DATA_SUFFIXES):
+        if rel.endswith(APPROVED_DATA_SUFFIXES):
             findings.append((rel, 0, "data-file-tracked", rel))
+            continue
+        if rel.endswith(UNAPPROVED_DATA_SUFFIXES):
+            findings.append((rel, 0, "unapproved-data-format", rel))
             continue
         if rel.endswith(SKIP_SUFFIXES):
             continue
@@ -189,7 +208,8 @@ DEFECT_FILES = {
     "vrcx-table-prefix": "vrcx-table-prefix.ex",
     "vrchat-asset-url": "vrchat-asset-url.ex",
     "absolute-home-path": "absolute-home-path.ex",
-    "data-file-tracked": "data-file-tracked.jsonl",
+    "data-file-tracked": "data-file-tracked.parquet",
+    "unapproved-data-format": "unapproved-data-format.jsonl",
 }
 CLEAN_FILE = "clean.ex"
 
