@@ -1,0 +1,90 @@
+name: gates
+
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Runs alone, and first. If a gate cannot fail on input that is known to be
+  # broken, then it passing on real input proves nothing, so nothing else in
+  # this workflow is allowed to report a green tick until this job is green.
+  gate-self-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: negative controls
+        run: gates/all.sh --self-test
+
+  gates:
+    needs: gate-self-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: G0 no personal data
+        run: python3 gates/check_no_personal_data.py .
+      - name: G4 no hardcoded identities
+        run: python3 gates/check_no_hardcoded_ids.py .
+      - name: G7 dual licence in two files
+        run: python3 gates/check_license.py .
+
+  manifest:
+    needs: gate-self-tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: the manifest parses
+        run: python3 -c "import xml.etree.ElementTree as E; E.parse('default.xml')"
+      - name: the manifest holds data and nothing else
+        # ElementTree discards comments, so a check built on the parse tree
+        # would pass on a file full of them. Scan the text.
+        run: |
+          if grep -q '<!--' default.xml; then
+            echo "default.xml contains an XML comment; the manifest holds data."
+            exit 1
+          fi
+          echo "no XML comments"
+      - name: every project declares a path, a remote and a revision
+        run: |
+          python3 - <<'PY'
+          import sys, xml.etree.ElementTree as E
+          root = E.parse("default.xml").getroot()
+          remotes = {r.get("name") for r in root.findall("remote")}
+          bad = []
+          paths, names = set(), []
+          for p in root.findall("project"):
+              for attr in ("name", "path", "remote", "revision"):
+                  if not p.get(attr):
+                      bad.append("%s missing %s" % (p.get("name"), attr))
+              if p.get("remote") not in remotes:
+                  bad.append("%s names unknown remote %s" % (p.get("name"), p.get("remote")))
+              if p.get("path") in paths:
+                  bad.append("duplicate path %s" % p.get("path"))
+              paths.add(p.get("path"))
+              names.append(p.get("name"))
+          # weftspun's rule: path recomposes to name. Drop the leading digit
+          # from the side and join it to the child with a hyphen.
+          for p in root.findall("project"):
+              side, _, child = p.get("path").partition("/")
+              expect = "%s-%s" % (side.split("-", 1)[1], child)
+              if p.get("name") not in (expect, child) and not p.get("name").startswith(
+                      side.split("-", 1)[1]):
+                  bad.append("path %s does not recompose to name %s (expected %s)"
+                             % (p.get("path"), p.get("name"), expect))
+          if root.findall(".//copyfile"):
+              bad.append("<copyfile> is forbidden; root files arrive via <linkfile>")
+          if bad:
+              print("\n".join(bad)); sys.exit(1)
+          print("%d projects, %d remotes, all well formed" % (len(names), len(remotes)))
+          PY

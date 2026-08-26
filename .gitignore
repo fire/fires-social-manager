@@ -1,0 +1,30 @@
+# The data never leaves this machine. Gate G0 enforces it; this is the first line.
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+*.db
+*.csv
+*.jsonl
+*.parquet
+snapshots/
+priv/data/
+logbook/attachments/
+
+# Elixir
+_build/
+deps/
+*.ez
+erl_crash.dump
+.elixir_ls/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
+
+# Editor and OS
+.DS_Store
+.vscode/

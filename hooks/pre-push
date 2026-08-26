@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+# The last checkpoint before bytes leave this machine.
+#
+# pre-commit catches a mistake early; pre-push is the one that matters, because
+# a push is the moment private data would become public and there is no
+# unpublishing it afterwards. Install with: gates/install-hooks.sh
+set -uo pipefail
+root="$(git rev-parse --show-toplevel)"
+
+# Hand the store to G0 when one exists, so the store-derived checks are not
+# merely "not applicable" on the machine that actually has the data.
+store="${FSM_STORE:-$root/social.sqlite3}"
+if [ -f "$store" ]; then export FSM_STORE="$store"; fi
+
+if ! "$root/gates/all.sh"; then
+  echo
+  echo "PUSH BLOCKED. The data does not leave this machine."
+  echo "Fix the findings above, or justify one in gates/allowed_ids.txt."
+  exit 1
+fi

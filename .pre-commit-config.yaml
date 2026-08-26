@@ -1,0 +1,38 @@
+repos:
+  - repo: local
+    hooks:
+      # The controls run before the gates, here as in CI. A gate that cannot
+      # fail on broken input is not evidence of anything.
+      - id: gate-self-tests
+        name: gate negative controls
+        entry: gates/all.sh --self-test
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: no-personal-data
+        name: G0 no personal data
+        entry: python3 gates/check_no_personal_data.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: no-hardcoded-ids
+        name: G4 no hardcoded identities
+        entry: python3 gates/check_no_hardcoded_ids.py
+        language: system
+        pass_filenames: false
+        always_run: true
+      - id: dual-license
+        name: G7 dual licence in two files
+        entry: python3 gates/check_license.py
+        language: system
+        pass_filenames: false
+        always_run: true
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: check-xml

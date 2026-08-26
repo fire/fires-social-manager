@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+
+  <remote name="fire" fetch="https://github.com/fire" />
+
+  <default sync-j="16" />
+
+  <project name="transport-social-web" path="1-transport/social-web" remote="fire" revision="main" />
+
+  <project name="contract-social-manager" path="2-contract/manuals-social-manager" remote="fire" revision="main">
+    <linkfile src="CLAUDE.md" dest="CLAUDE.md" />
+    <linkfile src="CLAUDE.md" dest="AGENTS.md" />
+    <linkfile src="CITATION.cff" dest="CITATION.cff" />
+  </project>
+
+  <project name="interactor-normalize" path="3-interactor/normalize" remote="fire" revision="main" />
+  <project name="interactor-forecast" path="3-interactor/forecast" remote="fire" revision="main" />
+  <project name="interactor-forecast-timesfm" path="3-interactor/forecast-timesfm" remote="fire" revision="main" />
+  <project name="interactor-forecast-litert" path="3-interactor/forecast-litert" remote="fire" revision="main" />
+
+  <project name="entities-social-graph" path="4-entities/social-graph" remote="fire" revision="main" />
+
+  <project name="repository-fact-store" path="5-repository/fact-store" remote="fire" revision="main" />
+
+  <project name="datasource-vrcx" path="6-datasource/vrcx" remote="fire" revision="main" />
+
+  <project name="service-social-manager" path="7-service/social-manager" remote="fire" revision="main" />
+
+</manifest>

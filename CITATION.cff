@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+title: fires-social-manager
+message: >-
+  If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - given-names: K. S. Ernest
+    name-particle: (iFire)
+    family-names: Lee
+    email: ernest.lee@chibifire.com
+    orcid: https://orcid.org/0009-0006-4861-9553
+repository-code: https://github.com/fire/fires-social-manager
+abstract: >-
+  A goal manifest for a social manager built on VRCX data. Renormalizes a VRCX
+  SQLite database to Essential Tuple Normal Form with deterministic UUID keys,
+  and forecasts availability, relationship decay, world liveliness and personal
+  rhythm. The manifest places eleven repositories on the seven sides of a
+  hexagonal architecture. The data it reads never leaves the machine it runs on.
+keywords:
+  - vrchat
+  - vrcx
+  - essential-tuple-normal-form
+  - sixth-normal-form
+  - ports-and-adapters
+  - hexagonal-architecture
+  - elixir
+  - ecto
+  - phoenix
+  - time-series-forecasting
+license:
+  - Apache-2.0
+  - MIT

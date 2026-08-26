@@ -1,0 +1,8 @@
+# Identifiers G0 and G4 are told to permit.
+#
+# One entry per line. Every entry MUST carry a trailing "# reason:" comment;
+# an entry that does not say why it is here is itself a finding, because an
+# allowlist without reasons is a place to hide things.
+#
+# The reserved all-zero namespace (usr_00000000-...) is recognized by both
+# gates directly and does not need a line here -- synthetic fixtures use it.
