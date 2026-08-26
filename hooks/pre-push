@@ -5,16 +5,48 @@
 #
 # pre-commit catches a mistake early; pre-push is the one that matters, because
 # a push is the moment private data would become public and there is no
-# unpublishing it afterwards. Install with: gates/install-hooks.sh
+# unpublishing it afterwards.
+#
+# This hook is installed into ALL eleven repositories, not only the one holding
+# the gates. Arming the manifest repository alone would leave the two that
+# actually touch the VRCX data -- datasource-vrcx and interactor-normalize --
+# pushing unguarded, which is the opposite of the intent.
 set -uo pipefail
 root="$(git rev-parse --show-toplevel)"
+
+# Find the gates. They live in the manifest repository, which is this repo when
+# run there, and .repo/manifests when run from a synced workspace.
+gates=""
+if [ -x "$root/gates/all.sh" ]; then
+  gates="$root/gates/all.sh"
+else
+  d="$root"
+  while [ "$d" != "/" ]; do
+    if [ -x "$d/.repo/manifests/gates/all.sh" ]; then
+      gates="$d/.repo/manifests/gates/all.sh"; break
+    fi
+    d="$(dirname "$d")"
+  done
+fi
+
+if [ -z "$gates" ]; then
+  echo "PUSH BLOCKED: cannot find gates/all.sh."
+  echo
+  echo "This hook could not locate the data gate, so it cannot tell whether"
+  echo "this push carries personal data. An unmet precondition is a FAIL, not"
+  echo "a pass -- a hook that cannot check must not wave the push through."
+  echo
+  echo "Run from a synced workspace (repo sync), or re-install with"
+  echo "  <manifest>/gates/install-hooks.sh"
+  exit 1
+fi
 
 # Hand the store to G0 when one exists, so the store-derived checks are not
 # merely "not applicable" on the machine that actually has the data.
 store="${FSM_STORE:-$root/social.sqlite3}"
 if [ -f "$store" ]; then export FSM_STORE="$store"; fi
 
-if ! "$root/gates/all.sh"; then
+if ! "$gates" "$root"; then
   echo
   echo "PUSH BLOCKED. The data does not leave this machine."
   echo "Fix the findings above, or justify one in gates/allowed_ids.txt."
