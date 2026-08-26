@@ -130,7 +130,7 @@ def check_citation(root, findings):
 
 
 def parse_license_field(text):
-    """Read `license:` as either an inline flow sequence or a block sequence.
+    r"""Read `license:` as either an inline flow sequence or a block sequence.
 
     `\s*` in a multiline regex crosses newlines, so a naive
     `^license:\s*(.+)$` silently reads only the first item of

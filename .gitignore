@@ -6,6 +6,10 @@
 *.csv
 *.jsonl
 *.parquet
+# ...except the gate control inputs. Every identifier under gates/fixtures/ is
+# synthetic, and a negative control that is not committed passes on the
+# author's disk and fails on every fresh clone -- which is how CI found this.
+!gates/fixtures/**
 snapshots/
 priv/data/
 logbook/attachments/

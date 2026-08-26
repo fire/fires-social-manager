@@ -164,9 +164,33 @@ def _fixture(name):
         return fh.read()
 
 
+def _controls_are_tracked(gate, fixtures_dir, names):
+    """A control fixture that git does not track is not a control.
+
+    It passes on the machine that wrote it and fails on every fresh clone.
+    That is exactly how this check came to exist: `.gitignore` matched
+    `*.jsonl`, the data-file control was never committed, the self-test read
+    it off local disk and reported PASS, and CI -- with only tracked files --
+    could not run it at all.
+    """
+    repo = os.path.dirname(fixtures_dir)
+    try:
+        out = subprocess.run(["git", "-C", repo, "ls-files", "-z", fixtures_dir],
+                             capture_output=True, text=True, check=True).stdout
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # No git here at all. Genuinely inapplicable, and said out loud
+        # rather than passed over.
+        print("%s  control-tracking: NOT APPLICABLE (no git repository)" % gate)
+        return []
+    tracked = {os.path.basename(p) for p in out.split("\0") if p}
+    return ["control fixture not tracked by git: %s" % n
+            for n in sorted(names) if n not in tracked]
+
+
 def self_test():
+    failures = _controls_are_tracked(
+        "G4", FIXTURES, list(DEFECT_FILES.values()) + [CLEAN_FILE])
     tmp = tempfile.mkdtemp(prefix="g4-selftest-")
-    failures = []
     try:
         subprocess.run(["git", "-C", tmp, "init", "-q"], check=True)
         for _code, name in DEFECT_FILES.items():
